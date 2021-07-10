@@ -17,6 +17,14 @@ client = Client()
 aw_database = Database(client)
 
 
+def guild_filters(guild_id: str):
+    return ['guildId=' + str(guild_id)]
+
+
+def course_filters(guild_id: str, course_name: str):
+    return ['guildId=' + str(guild_id), 'courseName=' + str(course_name)]
+
+
 def validate_course_name(name: str) -> bool:
     pattern = re.compile("^([a-zA-Z0-9]*-[a-zA-Z0-9]*){1}$")
     result = pattern.match(name)
@@ -27,20 +35,18 @@ def validate_course_name(name: str) -> bool:
 
 
 def course_exists(name: str, guild_id: str) -> bool:
-    filters = 'guildId=' + guild_id + ',courseName=' + name.upper()
     try:
-        result = aw_database.list_documents(os.environ.get(
-            'COURSES_COLLECTION_ID'), filters=filters)
+        course_list = aw_database.list_documents(os.environ.get(
+            'COURSES_COLLECTION_ID'), filters=course_filters(guild_id, name))['documents']
         return True
-    except:
+    except Exception as e:
         return False
 
 
 def get_course(name: str, guild_id: str) -> typing.Union[dict, None]:
-    filters = 'guildId=' + guild_id + ',courseName=' + name.upper()
     try:
         course_list = aw_database.list_documents(os.environ.get(
-            'COURSES_COLLECTION_ID'), filters=filters)['documents']
+            'COURSES_COLLECTION_ID'), filters=course_filters(guild_id, name))['documents']
         for course in course_list:
             parsed: dict = {
                 "guild_id": course['guildId'],
@@ -57,7 +63,7 @@ def parse_course_args(courses: typing.List[str], guild_id: str) -> typing.List[d
     data: typing.List[dict] = []
     for course in courses:
         parsed: dict = {
-            "guild_id": guild_id,
+            "guild_id": str(guild_id),
             "course_name": course.upper(),
             "category": course.split('-')[0].upper()
         }
@@ -78,7 +84,7 @@ def add_course(courses: typing.List[str], guild_id: str) -> str:
             response = response + "✅ Added: " + course.upper() + "\n"
             aw_database.create_document(os.environ.get(
                 'COURSES_COLLECTION_ID'), {
-                "guildId": guild_id,
+                "guildId": str(guild_id),
                 "courseName": course.upper(),
                 "category": course.split('-')[0].upper()
             })
@@ -92,10 +98,9 @@ def remove_course(courses: typing.List[str], guild_id: str) -> str:
         if validate_course_name(course) is False:
             response = response + "💢 Invalid Course Name: " + course.upper() + "\n"
         else:
-            filters = 'guildId=' + guild_id + ',courseName=' + course.upper()
             try:
                 course_list = aw_database.list_documents(os.environ.get(
-                    'COURSES_COLLECTION_ID'), filters=filters)['documents']
+                    'COURSES_COLLECTION_ID'), filters=course_filters(guild_id, course.upper()))['documents']
                 response = response + "✅ Removed: " + course.upper() + "\n"
                 for document in course_list:
                     aw_database.delete_document(os.environ.get(
@@ -107,10 +112,9 @@ def remove_course(courses: typing.List[str], guild_id: str) -> str:
 
 def course_list(guild_id: str) -> typing.List[dict]:
     courses: typing.List[dict] = []
-    filters = 'guildId=' + guild_id
     try:
         course_list = aw_database.list_documents(os.environ.get(
-            'COURSES_COLLECTION_ID'), filters=filters)['documents']
+            'COURSES_COLLECTION_ID'), filters=guild_filters(guild_id))['documents']
         for course in course_list:
             parsed: dict = {
                 "guild_id": course['guildId'],
@@ -129,16 +133,15 @@ def course_list(guild_id: str) -> typing.List[dict]:
 
 def get_prefix(guild_id: str) -> str:
     prefix: str = '$'
-    filters = 'guildId=' + guild_id
     try:
         guild_list = aw_database.list_documents(os.environ.get(
-            'GUILD_COLLECTION_ID'), filters=filters)['documents']
+            'GUILD_COLLECTION_ID'), filters=guild_filters(guild_id))['documents']
         for guild in guild_list:
             prefix = guild['prefix']
-    except:
+    except Exception as e:
         aw_database.create_document(os.environ.get(
             'GUILD_COLLECTION_ID'), {
-                "guildId": guild_id,
+                "guildId": str(guild_id),
                 "prefix": prefix
         })
     return prefix
@@ -151,15 +154,15 @@ def course_category(category: str, courses: typing.List[str], guild_id: str) -> 
         if validate_course_name(course) is False:
             response = response + "💢 Invalid Course Name: " + course.upper() + "\n"
         else:
-            filters = 'guildId=' + guild_id + ',courseName=' + course.upper()
+
             try:
                 course_list = aw_database.list_documents(os.environ.get(
-                    'COURSES_COLLECTION_ID'), filters=filters)['documents']
+                    'COURSES_COLLECTION_ID'), filters=course_filters(guild_id, course.upper()))['documents']
                 response = response + "✅ Removed: " + course.upper() + "\n"
                 for document in course_list:
                     aw_database.update_document(os.environ.get(
                         'COURSES_COLLECTION_ID'), document['$id'], {
-                            'guildId': guild_id,
+                            'guildId': str(guild_id),
                             'courseName': course.upper(),
                             'category': category
                     })
@@ -169,20 +172,19 @@ def course_category(category: str, courses: typing.List[str], guild_id: str) -> 
 
 
 def set_prefix(guild_id: str, prefix: str):
-    filters = 'guildId=' + guild_id
     try:
         guild_list = aw_database.list_documents(os.environ.get(
-            'GUILD_COLLECTION_ID'), filters=filters)['documents']
+            'GUILD_COLLECTION_ID'), filters=guild_filters(guild_id))['documents']
         for guild in guild_list:
             aw_database.update_document(os.environ.get(
                 'GUILD_COLLECTION_ID'), guild['$id'], {
-                'guildId': guild_id,
+                'guildId': str(guild_id),
                 'prefix': prefix
             })
     except:
         aw_database.create_document(os.environ.get(
             'GUILD_COLLECTION_ID'), {
-                "guildId": guild_id,
+                "guildId": str(guild_id),
                 "prefix": prefix
         })
     return prefix

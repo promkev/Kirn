@@ -16,7 +16,6 @@ class Courses(commands.Cog):
         if database.admindb.course_exists(course, ctx.guild.id):
             category_name = database.admindb.get_course(
                 course, ctx.guild.id)["category"]
-            print(category_name)
             # Get or create original category
             category = discord.utils.get(
                 ctx.guild.categories, name=category_name)

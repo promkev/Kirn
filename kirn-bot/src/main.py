@@ -6,7 +6,6 @@ import json
 import os
 from discord.ext import commands
 
-import database.models
 import database.admindb
 import math as m
 from discord.ext.commands.errors import BotMissingPermissions

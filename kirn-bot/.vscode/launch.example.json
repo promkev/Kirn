@@ -8,7 +8,11 @@
       "program": "./src/start.py",
       "console": "integratedTerminal",
       "env": {
-        "BOT_TOKEN": ""
+        "BOT_TOKEN": "",
+        "PROJECT_ID": "",
+        "API_KEY": "",
+        "COURSES_COLLECTION_ID": "",
+        "GUILD_COLLECTION_ID": ""
       }
     }
   ]

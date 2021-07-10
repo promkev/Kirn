@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import os
-import database.models
 import database.admindb
 import typing
 
@@ -10,7 +9,6 @@ class Admin(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.db = database.models.db
 
     async def cog_check(self, ctx: commands.Context):
         # Check if the user has the administrator permission
