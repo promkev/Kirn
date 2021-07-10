@@ -1,0 +1,8 @@
+.idea/
+auth.json
+.vscode/settings.json
+.vscode/launch.json
+src/cogs/__pycache__/*
+src/database/__pycache__/*
+src/database.db
+src/data/database.db

@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python",
+      "type": "python",
+      "request": "launch",
+      "program": "./src/start.py",
+      "console": "integratedTerminal",
+      "env": {
+        "BOT_TOKEN": ""
+      }
+    }
+  ]
+}
