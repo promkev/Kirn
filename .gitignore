@@ -1,1 +1,3 @@
 **/.venv/*
+**/.appwrite/*
+**/node_modules/*

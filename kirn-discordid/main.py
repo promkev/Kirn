@@ -8,24 +8,29 @@ import requests
 client = Client()
 
 (client
- .set_endpoint(os.environ.get('API_ENDPOINT'))  # Your API Endpoint
+ # Your API Endpoint
+ .set_endpoint('https://appwrite.grypr.cf/v1')
  .set_project(os.environ.get('PROJECT_ID'))  # Your project ID
  .set_key(os.environ.get('API_KEY'))  # Your secret API key
  )
 
-payload = json.loads(os.environ["APPWRITE_FUNCTION_EVENT_DATA"])
-provider_token = payload['providerToken']
+payload = json.loads(os.environ.get("APPWRITE_FUNCTION_EVENT_DATA"))
 
-response = requests.get('https://discordapp.com/api/users/@me',
+provider_token = payload['providerToken']
+user_id = payload['userId']
+
+request = requests.get('https://discordapp.com/api/users/@me',
                         headers={'Authorization': 'Bearer ' + provider_token})
 
-discordId = response['id']
+discord_id = json.loads(request.content)['id']
 
 database = Database(client)
 
+filters = 'discordId=' + discord_id
+
 try:
     result = database.list_documents(os.environ.get(
-        'COLLECTION_ID'), filters='discordId=' + discordId)
+        'COLLECTION_ID'), filters=filters)
 except:
     result = database.create_document(os.environ.get(
-        'COLLECTION_ID'), {'discordId': discordId})
+        'COLLECTION_ID'), {'userId': user_id, 'discordId': discord_id})
