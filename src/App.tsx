@@ -1,14 +1,13 @@
 import React from 'react';
 import './App.css';
-import LoginButton from './Components/LoginButton/LoginButton';
+import NavigationBar from './Components/NavigationBar/NavigationBar';
+
 function App() {
   require('dotenv').config()
 
   return (
     <div className="App">
-      <header className="App-header">
-        <LoginButton />
-      </header>
+      <NavigationBar />
     </div>
   );
 }
