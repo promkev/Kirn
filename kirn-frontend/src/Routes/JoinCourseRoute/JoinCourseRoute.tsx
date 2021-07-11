@@ -18,7 +18,10 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: 'center',
     },
     content: {
-        fontSize: 25,
+        fontSize: 26,
+    },
+    mediumcontent: {
+        fontSize: 20,
     },
     smallcontent: {
         fontSize: 14,
@@ -83,8 +86,15 @@ export default function JoinCourseRoute() {
             // Log in required
             case 2:
                 return (<div>
+                    <Typography className={classes.mediumcontent}>
+                        {courseName?.toLocaleUpperCase()} is a channel on a Discord server using Kirn for course channel management.
+                    </Typography>
+                    <Typography className={classes.mediumcontent}>
+                        You must first log into Discord, and join the server before the bot can add you to the course channel.
+                    </Typography>
+                    <br />
                     <Typography className={classes.content}>
-                        Please log in using Discord
+                        Please log in to Discord to continue.
                     </Typography>
                     <LoginButton />
                 </div>)
