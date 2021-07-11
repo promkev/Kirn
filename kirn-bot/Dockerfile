@@ -16,5 +16,5 @@ COPY . .
 
 # update PATH environment variable
 ENV PATH=/root/.local:$PATH
-
+EXPOSE 5000
 CMD ["python", "./src/main.py"]
