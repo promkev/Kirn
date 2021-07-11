@@ -27,6 +27,17 @@ class Courses(commands.Cog):
         else:
             await ctx.message.channel.send('Course does not exist 🤦‍♀️')
 
+    @commands.command(brief="Generate a shareable URL for a course channel", description="Generate a shareable URL for a course channel")
+    async def url(self, ctx: commands.Context, *, arg):
+        course = arg.upper()
+        if database.admindb.course_exists(course, ctx.guild.id):
+            link = await utilities.course.generate_course_url(course, ctx.guild, self.client)
+
+            await ctx.message.channel.send('✅ Here is the URL to the course channel: ' + link)
+
+        else:
+            await ctx.message.channel.send('Course does not exist 🤦‍♀️')
+
     @commands.command(brief="Leave a course channel")
     async def leave(self, ctx: commands.Context, *, arg):
         course = arg.upper()
