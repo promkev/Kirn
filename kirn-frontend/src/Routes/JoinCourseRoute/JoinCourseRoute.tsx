@@ -95,7 +95,7 @@ export default function JoinCourseRoute() {
                         Please join the Discord server, and come back to this page.
                     </Typography>
                     <Typography className={classes.smallcontent}>
-                        (If the button does not work: <a href={botResp!.extra} className={classes.link}>{botResp!.extra}</a>)
+                        (If the button does not work: <a href={botResp!.extra} target="_blank" rel="noopener noreferrer" className={classes.link}>{botResp!.extra}</a>)
                     </Typography>
                     <Typography>
                         <Button onClick={() => openInNewTab(botResp!.extra)} variant="contained" color="secondary">
