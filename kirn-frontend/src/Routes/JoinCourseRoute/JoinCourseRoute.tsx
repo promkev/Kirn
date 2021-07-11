@@ -1,4 +1,4 @@
-import { Box, makeStyles, Typography } from '@material-ui/core';
+import { Box, Button, makeStyles, Typography } from '@material-ui/core';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Loading from '../../Components/Loading/Loading';
@@ -52,6 +52,11 @@ export default function JoinCourseRoute() {
 
     let { guildId, courseName } = useParams<Record<string, string | undefined>>();
 
+    const openInNewTab = (url: string) => {
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+        if (newWindow) newWindow.opener = null
+    }
+
     function stepSwitch(arg: number) {
         switch (arg) {
             // Loading
@@ -81,14 +86,20 @@ export default function JoinCourseRoute() {
             case 3:
                 return (<div>
                     <Typography className={classes.content}>
-                        Please join the server using this invite link.
+                        Please join the Discord server, and come back to this page.
                     </Typography>
                     <Typography>
-                        {botResp!.extra}
+                        <Button onClick={() => openInNewTab(botResp!.extra)} variant="contained" color="secondary">
+                            Join Discord Server
+                        </Button>
                     </Typography>
+                    <br />
                     <Typography className={classes.content}>
                         Once you are done, click the button below.
                     </Typography>
+                    <Button onClick={() => window.location.reload(true)} variant="contained" color="primary">
+                        Continue
+                    </Button>
                 </div>)
             case 4:
                 return (<div>
