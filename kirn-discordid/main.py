@@ -20,13 +20,13 @@ provider_token = payload['providerToken']
 user_id = payload['userId']
 
 request = requests.get('https://discordapp.com/api/users/@me',
-                        headers={'Authorization': 'Bearer ' + provider_token})
+                       headers={'Authorization': 'Bearer ' + provider_token})
 
 discord_id = json.loads(request.content)['id']
 
 database = Database(client)
 
-filters = 'discordId=' + discord_id
+filters = ['discordId=' + discord_id]
 
 try:
     result = database.list_documents(os.environ.get(
