@@ -14,8 +14,7 @@ client = Client()
  .set_key(os.environ.get('API_KEY'))  # Your secret API key
  )
 
-payload = json.loads(os.environ.get("APPWRITE_FUNCTION_EVENT_DATA"))
-
+payload = json.loads(os.environ.get("APPWRITE_FUNCTION_DATA"))
 course_name = payload['courseName']
 guild_id = payload['guildId']
 
@@ -26,14 +25,16 @@ filters = ['userId=' + os.environ.get("APPWRITE_FUNCTION_USER_ID")]
 try:
     result = database.list_documents(os.environ.get(
         'COLLECTION_ID'), filters=filters)
-    discord_id = result['discordId']
+    discord_id = result['documents'][0]['discordId']
     data = {
-        'guildId': guild_id,
-        'course_name': course_name,
-        'userId': discord_id
+        'guildId': str(guild_id),
+        'courseName': str(course_name),
+        'userId': str(discord_id)
     }
+    data = json.dumps(data)
     request = requests.post(os.environ.get('BOT_API_URL'),
                             headers={'Authorization': os.environ.get('BOT_API_TOKEN')}, data=data)
-    print(request.content)
-except:
+    print(request.content.decode())
+except Exception as e:
+    print(e)
     print("Internal Server Error")

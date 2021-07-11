@@ -29,25 +29,35 @@ class APIServer(commands.Cog):
                 if guild is None:
                     return web.json_response({
                         "success": False,
-                        "code": 0
+                        "code": 0,
+                        "extra": ""
                     })
-                user = guild.get_member(int(user_id))
-                if user is None:
-                    return web.json_response({
-                        "success": False,
-                        "code": 1
-                    })
+
                 if database.admindb.course_exists(course_name, guild_id):
+
+                    user = guild.get_member(int(user_id))
+                    if user is None:
+
+                        return web.json_response({
+                            "success": False,
+                            "code": 1,
+                            "extra": await utilities.course.join_course(
+                                course_name, guild, self.client)
+                        })
+
                     await utilities.course.join_course(
                         course_name, guild, user, self.client)
+
                     return web.json_response({
                         "success": True,
-                        "code": 0
+                        "code": 0,
+                        "extra": ""
                     })
                 else:
                     return web.json_response({
                         "success": False,
-                        "code": 1
+                        "code": 1,
+                        "extra": ""
                     })
 
         self.webserver_port = os.environ.get('PORT', 5000)
