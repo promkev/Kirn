@@ -1,7 +1,5 @@
-import { CircularProgress, makeStyles, Toolbar } from '@material-ui/core';
-import LoginButton from '../LoginButton/LoginButton';
-import AppBar from '@material-ui/core/AppBar';
-import { useEffect, useRef, useState } from 'react';
+import { CircularProgress, makeStyles } from '@material-ui/core';
+import { useRef } from 'react';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -15,15 +13,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Loading() {
     const classes = useStyles();
-    const [parentSize, setParentSize] = useState(0);
     const parentRef = useRef<HTMLDivElement>(null);
-
-
-    useEffect(() => {
-        const { clientHeight, clientWidth } = parentRef.current!;
-
-        setParentSize(Math.min(clientHeight, clientWidth));
-    }, []);
 
     return (
         <div ref={parentRef} className={classes.root} >

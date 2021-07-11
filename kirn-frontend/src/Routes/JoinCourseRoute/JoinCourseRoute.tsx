@@ -1,11 +1,9 @@
-import { Box, Button, Divider, Grid, makeStyles, Typography } from '@material-ui/core';
+import { Box, makeStyles, Typography } from '@material-ui/core';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Loading from '../../Components/Loading/Loading';
 import LoginButton from '../../Components/LoginButton/LoginButton';
-import appwrite from '../../Constants/Appwrite';
 import CreateExecution from '../../Modules/CreateExecution';
-import GetUserSession from '../../Modules/GetUserSession';
 import JoinCourseObject from '../../Models/JoinCourseObject';
 
 const useStyles = makeStyles((theme) => ({
@@ -24,10 +22,6 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-interface FunctionResponse {
-
-}
-
 export default function JoinCourseRoute() {
     const classes = useStyles();
     const [step, setStep] = useState<number>(0)
@@ -41,18 +35,19 @@ export default function JoinCourseRoute() {
                     setStep(2)
                 } else {
                     setBotResp(resp)
-                    if (resp.success == true) {
+                    if (resp.success === true) {
                         setStep(1)
                     }
-                    else if (resp.code == 0) {
+                    else if (resp.code === 0) {
                         setStep(4)
                     }
-                    else if (resp.code == 1) {
+                    else if (resp.code === 1) {
                         setStep(3)
                     }
                 }
             }
             )
+        // eslint-disable-next-line
     }, [])
 
     let { guildId, courseName } = useParams<Record<string, string | undefined>>();
