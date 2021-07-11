@@ -1,28 +1,6 @@
+import database.models
 import re
 import typing
-from appwrite.client import Client
-from appwrite.services.database import Database
-
-import os
-
-client = Client()
-
-(client
- # Your API Endpoint
- .set_endpoint('https://appwrite.grypr.cf/v1')
- .set_project(os.environ.get('PROJECT_ID'))  # Your project ID
- .set_key(os.environ.get('API_KEY'))  # Your secret API key
- )
-
-aw_database = Database(client)
-
-
-def guild_filters(guild_id: str):
-    return ['guildId=' + str(guild_id)]
-
-
-def course_filters(guild_id: str, course_name: str):
-    return ['guildId=' + str(guild_id), 'courseName=' + str(course_name)]
 
 
 def validate_course_name(name: str) -> bool:
@@ -35,27 +13,30 @@ def validate_course_name(name: str) -> bool:
 
 
 def course_exists(name: str, guild_id: str) -> bool:
-    try:
-        course_list = aw_database.list_documents(os.environ.get(
-            'COURSES_COLLECTION_ID'), filters=course_filters(guild_id, name))['documents']
+    if database.models.Course.select().where(database.models.Course.guild_id == guild_id).where(database.models.Course.course_name == name.upper()).exists():
         return True
-    except Exception as e:
+    else:
+        return False
+
+
+def guild_exists(guild_id: str) -> bool:
+    if database.models.Guild.select().where(database.models.Course.guild_id == guild_id).exists():
+        return True
+    else:
         return False
 
 
 def get_course(name: str, guild_id: str) -> typing.Union[dict, None]:
-    try:
-        course_list = aw_database.list_documents(os.environ.get(
-            'COURSES_COLLECTION_ID'), filters=course_filters(guild_id, name))['documents']
-        for course in course_list:
+    query = database.models.Course.select().where(
+        database.models.Course.guild_id == guild_id).where(database.models.Course.course_name == name.upper())
+    if query.exists():
+        for course in query:
             parsed: dict = {
-                "guild_id": course['guildId'],
-                "course_name": course['courseName'],
-                "category": course['category']
+                "guild_id": guild_id,
+                "course_name": course.course_name,
+                "category": course.category
             }
             return parsed
-    except:
-        return None
     return None
 
 
@@ -63,7 +44,7 @@ def parse_course_args(courses: typing.List[str], guild_id: str) -> typing.List[d
     data: typing.List[dict] = []
     for course in courses:
         parsed: dict = {
-            "guild_id": str(guild_id),
+            "guild_id": guild_id,
             "course_name": course.upper(),
             "category": course.split('-')[0].upper()
         }
@@ -75,6 +56,7 @@ def parse_course_args(courses: typing.List[str], guild_id: str) -> typing.List[d
 def add_course(courses: typing.List[str], guild_id: str) -> str:
     response: str = ""
     course: str
+    filtered_courses: typing.List[str] = []
     for course in courses:
         if validate_course_name(course) is False:
             response = response + "💢 Invalid Course Name: " + course.upper() + "\n"
@@ -82,12 +64,9 @@ def add_course(courses: typing.List[str], guild_id: str) -> str:
             response = response + "❌ Course already exists: " + course.upper() + "\n"
         else:
             response = response + "✅ Added: " + course.upper() + "\n"
-            aw_database.create_document(os.environ.get(
-                'COURSES_COLLECTION_ID'), {
-                "guildId": str(guild_id),
-                "courseName": course.upper(),
-                "category": course.split('-')[0].upper()
-            })
+            filtered_courses.append(course)
+    database.models.Course.insert_many(
+        parse_course_args(filtered_courses, guild_id)).execute()
     return response
 
 
@@ -97,53 +76,41 @@ def remove_course(courses: typing.List[str], guild_id: str) -> str:
     for course in courses:
         if validate_course_name(course) is False:
             response = response + "💢 Invalid Course Name: " + course.upper() + "\n"
+        elif course_exists(course, guild_id) is False:
+            response = response + "❌ Course doesn't exists: " + course.upper() + "\n"
         else:
-            try:
-                course_list = aw_database.list_documents(os.environ.get(
-                    'COURSES_COLLECTION_ID'), filters=course_filters(guild_id, course.upper()))['documents']
-                response = response + "✅ Removed: " + course.upper() + "\n"
-                for document in course_list:
-                    aw_database.delete_document(os.environ.get(
-                        'COURSES_COLLECTION_ID'), document['$id'])
-            except:
-                response = response + "❌ Course doesn't exists: " + course.upper() + "\n"
+            response = response + "✅ Removed: " + course.upper() + "\n"
+            database.models.Course.delete().where(database.models.Course.guild_id == guild_id and
+                                                  database.models.Course.course_name == course.upper()).execute()
     return response
 
 
 def course_list(guild_id: str) -> typing.List[dict]:
     courses: typing.List[dict] = []
-    try:
-        course_list = aw_database.list_documents(os.environ.get(
-            'COURSES_COLLECTION_ID'), filters=guild_filters(guild_id))['documents']
-        for course in course_list:
+    query = database.models.Course.select().where(
+        database.models.Course.guild_id == guild_id)
+    if query.exists():
+        for course in query:
             parsed: dict = {
-                "guild_id": course['guildId'],
-                "course_name": course['courseName'],
-                "category": course['category']
+                "guild_id": guild_id,
+                "course_name": course.course_name,
+                "category": course.category
             }
             courses.append(parsed)
         return courses
-    except:
+    else:
         return []
-    return []
-
-
-# TODO
 
 
 def get_prefix(guild_id: str) -> str:
     prefix: str = '$'
-    try:
-        guild_list = aw_database.list_documents(os.environ.get(
-            'GUILD_COLLECTION_ID'), filters=guild_filters(guild_id))['documents']
-        for guild in guild_list:
-            prefix = guild['prefix']
-    except Exception as e:
-        aw_database.create_document(os.environ.get(
-            'GUILD_COLLECTION_ID'), {
-                "guildId": str(guild_id),
-                "prefix": prefix
-        })
+    query = database.models.Guild.select().where(
+        database.models.Guild.guild_id == guild_id)
+    if query.exists():
+        for guild in query:
+            prefix = guild.prefix
+    else:
+        database.models.Guild.create(guild_id=guild_id, prefix=prefix)
     return prefix
 
 
@@ -153,38 +120,22 @@ def course_category(category: str, courses: typing.List[str], guild_id: str) -> 
     for course in courses:
         if validate_course_name(course) is False:
             response = response + "💢 Invalid Course Name: " + course.upper() + "\n"
+        elif course_exists(course, guild_id) is False:
+            response = response + "❌ Course doesn't exists: " + course.upper() + "\n"
         else:
-
-            try:
-                course_list = aw_database.list_documents(os.environ.get(
-                    'COURSES_COLLECTION_ID'), filters=course_filters(guild_id, course.upper()))['documents']
-                response = response + "✅ Removed: " + course.upper() + "\n"
-                for document in course_list:
-                    aw_database.update_document(os.environ.get(
-                        'COURSES_COLLECTION_ID'), document['$id'], {
-                            'guildId': str(guild_id),
-                            'courseName': course.upper(),
-                            'category': category
-                    })
-            except:
-                response = response + "❌ Course doesn't exists: " + course.upper() + "\n"
+            response = response + "✅ Updated: " + course.upper() + "\n"
+            database.models.Course.update(category=category).where(database.models.Course.guild_id == guild_id and
+                                                                   database.models.Course.course_name == course.upper()).execute()
     return response
 
 
 def set_prefix(guild_id: str, prefix: str):
-    try:
-        guild_list = aw_database.list_documents(os.environ.get(
-            'GUILD_COLLECTION_ID'), filters=guild_filters(guild_id))['documents']
-        for guild in guild_list:
-            aw_database.update_document(os.environ.get(
-                'GUILD_COLLECTION_ID'), guild['$id'], {
-                'guildId': str(guild_id),
-                'prefix': prefix
-            })
-    except:
-        aw_database.create_document(os.environ.get(
-            'GUILD_COLLECTION_ID'), {
-                "guildId": str(guild_id),
-                "prefix": prefix
-        })
+    find_query = database.models.Guild.select().where(
+        database.models.Guild.guild_id == guild_id)
+    if find_query.exists():
+        update_query = database.models.Guild.update(prefix=prefix).where(
+            database.models.Guild.guild_id == guild_id)
+        update_query.execute()
+    else:
+        database.models.Guild.create(guild_id=guild_id, prefix=prefix)
     return prefix

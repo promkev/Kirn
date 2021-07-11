@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import os
 import database.admindb
+import utilities.course
 
 
 class Courses(commands.Cog):
@@ -14,33 +15,12 @@ class Courses(commands.Cog):
     async def join(self, ctx: commands.Context, *, arg):
         course = arg.upper()
         if database.admindb.course_exists(course, ctx.guild.id):
-            category_name = database.admindb.get_course(
-                course, ctx.guild.id)["category"]
-            # Get or create original category
-            category = discord.utils.get(
-                ctx.guild.categories, name=category_name)
-
-            if category is None:
-                category = await ctx.guild.create_category(name=category_name)
-
-            # Get or create second category if there are already over 50 channels in the original
-            category = discord.utils.get(
-                ctx.guild.categories, name=category_name)
-            if category is None:
-                category = await ctx.guild.create_category(name=category_name)
+            await utilities.course.join_course(course, ctx.guild, ctx.message.author, self.client)
 
             channel = discord.utils.get(
                 ctx.guild.channels, name=course.lower())
 
-            if channel is None:
-                channel = await ctx.guild.create_text_channel(course, category=category)
-                await channel.set_permissions(ctx.guild.default_role, read_messages=False)
-                await channel.set_permissions(self.client.user, read_messages=True)
-
-            if channel.overwrites_for(ctx.message.author).read_messages == None:
-                await channel.set_permissions(ctx.message.author, read_messages=True)
-
-            await ctx.message.channel.send('✅ Got it! Gave ' + ctx.message.author.mention + ' access to #' + course.lower() + '.')
+            await ctx.message.channel.send('✅ Got it! Gave ' + ctx.message.author.mention + ' access to #' + channel.mention + '.')
 
             await channel.send(ctx.message.author.mention + ' joined the chat.')
 
