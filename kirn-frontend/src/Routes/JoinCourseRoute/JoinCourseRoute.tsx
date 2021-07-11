@@ -20,6 +20,12 @@ const useStyles = makeStyles((theme) => ({
     content: {
         fontSize: 25,
     },
+    smallcontent: {
+        fontSize: 14,
+    },
+    link: {
+        color: '#03e3fc'
+    }
 }))
 
 export default function JoinCourseRoute() {
@@ -88,11 +94,15 @@ export default function JoinCourseRoute() {
                     <Typography className={classes.content}>
                         Please join the Discord server, and come back to this page.
                     </Typography>
+                    <Typography className={classes.smallcontent}>
+                        (If the button does not work: <a href={botResp!.extra} className={classes.link}>{botResp!.extra}</a>)
+                    </Typography>
                     <Typography>
                         <Button onClick={() => openInNewTab(botResp!.extra)} variant="contained" color="secondary">
                             Join Discord Server
                         </Button>
                     </Typography>
+
                     <br />
                     <Typography className={classes.content}>
                         Once you are done, click the button below.
@@ -100,6 +110,7 @@ export default function JoinCourseRoute() {
                     <Button onClick={() => window.location.reload(true)} variant="contained" color="primary">
                         Continue
                     </Button>
+
                 </div>)
             case 4:
                 return (<div>
