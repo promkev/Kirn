@@ -1,13 +1,24 @@
-import { Button, ButtonProps } from '@material-ui/core'
+import { Button, ButtonProps, makeStyles } from '@material-ui/core'
 import appwrite from '../../Constants/Appwrite';
 import GetUserSession from '../../Modules/GetUserSession';
 import { useEffect, useState } from 'react';
 
+const useStyles = makeStyles((theme) => ({
+    root: {
+        minHeight: '100%',
+        maxHeight: '100%',
+        flexGrow: 1,
+    },
+    left: {
+        marginLeft: 'auto',
+        flexDirection: 'row',
+        display: 'flex',
+    }
+}))
+
 export default function LoginButton(props: ButtonProps) {
     const [loggedIn, setLoggedIn] = useState<boolean>(false)
-    const [loaded, setLoaded] = useState<boolean>(false)
-
-
+    const classes = useStyles();
 
     useEffect(() => {
         GetUserSession().then(resp => {
@@ -16,7 +27,7 @@ export default function LoginButton(props: ButtonProps) {
             } else {
                 setLoggedIn(true)
             }
-        }).then(() => setLoaded(true))
+        })
     }, [])
 
     function login() {
@@ -42,10 +53,6 @@ export default function LoginButton(props: ButtonProps) {
         })
     }
     return (
-        <div>
-            {loaded ? [loggedIn ? <Button {...props} variant="contained" color="secondary" onClick={logout}>Logout</Button> : <Button {...props} variant="contained" color="secondary" onClick={login}>Log in with Discord</Button>
-            ] : ""
-            }
-        </div>
+        <Button {...props} variant="contained" color="secondary" onClick={() => { loggedIn ? logout() : login() }} className={classes.root}>{loggedIn ? "Log out" : "Log in to Discord"}</Button>
     );
 }
