@@ -31,6 +31,10 @@ filters = ['discordId=' + discord_id]
 try:
     result = database.list_documents(os.environ.get(
         'COLLECTION_ID'), filters=filters)
-except:
+    if (result['documents'] == []):
+        result = database.create_document(os.environ.get(
+            'COLLECTION_ID'), {'userId': user_id, 'discordId': discord_id})
+except Exception as e:
+    print(e)
     result = database.create_document(os.environ.get(
         'COLLECTION_ID'), {'userId': user_id, 'discordId': discord_id})

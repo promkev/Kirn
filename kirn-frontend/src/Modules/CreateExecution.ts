@@ -9,7 +9,7 @@ export default async function CreateExecution(
   courseName: string,
   guildId: string
 ): Promise<JoinCourseObject | void> {
-  var response = {
+  var response: JoinCourseObject = {
     success: false,
     code: -1,
     extra: "",
@@ -22,7 +22,7 @@ export default async function CreateExecution(
   }
 
   var execution: ExecutionObject;
-  var functionId: string = process.env["REACT_APP_JOIN_FUNCTION_ID"]!;
+  var functionId: string = "60ea1071cb1da";
 
   if (loggedIn === true) {
     execution = await appwrite.functions.createExecution(
@@ -45,7 +45,7 @@ export default async function CreateExecution(
     );
     status = execution.status;
   }
-
+  console.log(execution.stdout);
   response = JSON.parse(execution.stdout);
 
   return response;

@@ -23,7 +23,7 @@ export default function NavigationBar() {
             if (resp.$id === "") {
                 setName("Not logged in")
             } else {
-                setName(resp.name)
+                setName("Logged in as " + resp.name)
             }
         })
     }, [])
@@ -32,7 +32,7 @@ export default function NavigationBar() {
         <div className={classes.root}>
             <AppBar position="static">
                 <Toolbar >
-                    <Typography>Logged in as {name}</Typography>
+                    <Typography>{name}</Typography>
                     <div className={classes.left}>
                         <LoginButton />
                     </div>

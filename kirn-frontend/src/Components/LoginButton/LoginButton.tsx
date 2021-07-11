@@ -4,9 +4,10 @@ import GetUserSession from '../../Modules/GetUserSession';
 import { useEffect, useState } from 'react';
 
 export default function LoginButton(props: ButtonProps) {
-    const { REACT_APP_OAUTH2_REDIRECT_SUCCESS, REACT_APP_OAUTH2_REDIRECT_FAILURE } = process.env
     const [loggedIn, setLoggedIn] = useState<boolean>(false)
     const [loaded, setLoaded] = useState<boolean>(false)
+
+
 
     useEffect(() => {
         GetUserSession().then(resp => {
@@ -19,7 +20,7 @@ export default function LoginButton(props: ButtonProps) {
     }, [])
 
     function login() {
-        appwrite.account.createOAuth2Session('discord', REACT_APP_OAUTH2_REDIRECT_SUCCESS, REACT_APP_OAUTH2_REDIRECT_FAILURE)
+        appwrite.account.createOAuth2Session('discord', window.location.href, window.location.href)
     }
 
     function logout() {
@@ -31,6 +32,7 @@ export default function LoginButton(props: ButtonProps) {
             } else {
                 try {
                     appwrite.account.deleteSession('current')
+                    window.location.reload(true)
                     setLoggedIn(false)
                 } catch (error) {
                     console.log(error)

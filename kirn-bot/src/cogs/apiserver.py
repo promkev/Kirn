@@ -41,7 +41,7 @@ class APIServer(commands.Cog):
                         return web.json_response({
                             "success": False,
                             "code": 1,
-                            "extra": await utilities.course.join_course(
+                            "extra": await utilities.course.generate_course_invite(
                                 course_name, guild, self.client)
                         })
 
