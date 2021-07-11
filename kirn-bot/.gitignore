@@ -6,3 +6,4 @@ src/cogs/__pycache__/*
 src/database/__pycache__/*
 src/database.db
 src/data/database.db
+**/__pycache__/**
