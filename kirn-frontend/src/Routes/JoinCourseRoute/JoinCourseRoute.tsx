@@ -5,6 +5,7 @@ import Loading from '../../Components/Loading/Loading';
 import LoginButton from '../../Components/LoginButton/LoginButton';
 import CreateExecution from '../../Modules/CreateExecution';
 import JoinCourseObject from '../../Models/JoinCourseObject';
+import { openInNewTab } from '../../Modules/OpenInNewTab';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -60,11 +61,6 @@ export default function JoinCourseRoute() {
     }, [])
 
     let { guildId, courseName } = useParams<Record<string, string | undefined>>();
-
-    const openInNewTab = (url: string) => {
-        const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
-        if (newWindow) newWindow.opener = null
-    }
 
     function stepSwitch(arg: number) {
         switch (arg) {
