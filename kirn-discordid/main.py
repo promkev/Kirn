@@ -12,6 +12,7 @@ client = Client()
  .set_endpoint(os.environ.get('API_ENDPOINT'))
  .set_project(os.environ.get('PROJECT_ID'))  # Your project ID
  .set_key(os.environ.get('API_KEY'))  # Your secret API key
+ .set_self_signed()
  )
 
 payload = json.loads(os.environ.get("APPWRITE_FUNCTION_EVENT_DATA"))
