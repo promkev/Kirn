@@ -63,10 +63,6 @@ class APIServer(commands.Cog):
         self.webserver_port = os.environ.get('PORT', 5000)
         app.add_routes(routes)
 
-    @commands.command()
-    async def helloworld(self, ctx: commands.Context):
-        await ctx.message.channel.send("test123")
-
     @tasks.loop()
     async def web_server(self):
         runner = web.AppRunner(app)

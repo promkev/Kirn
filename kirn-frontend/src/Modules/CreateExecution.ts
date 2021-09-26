@@ -44,6 +44,7 @@ export default async function CreateExecution(
       execution.$id
     );
     status = execution.status;
+    console.log(execution);
   }
   console.log(execution.stdout);
   response = JSON.parse(execution.stdout);

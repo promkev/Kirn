@@ -1,3 +1,4 @@
+import csv
 import discord
 from discord.ext import commands
 import os
@@ -43,7 +44,7 @@ class Admin(commands.Cog):
     def get_templates(self) -> typing.List[str]:
         templates: typing.List[str] = []
         for filename in os.listdir(os.path.join(os.path.dirname(__file__), '..', 'templates')):
-            if filename.endswith('.txt'):
+            if filename.endswith('.csv'):
                 templates.append(filename[:-4])
         return templates
 
@@ -55,17 +56,32 @@ class Admin(commands.Cog):
         await ctx.message.channel.send(response)
 
     @commands.command(brief="Add all courses in a template")
-    async def addtemplate(self, ctx: commands.Context, arg):
+    async def activatetemplate(self, ctx: commands.Context, arg):
         response: str = ""
         if arg in self.get_templates():
             courses: typing.List[str] = []
             try:
-                with open(os.path.join(os.path.dirname(__file__), '..', 'templates', arg + '.txt')) as fp:
-                    line = fp.readline()
-                    while line:
-                        courses.append(line.strip())
-                        line = fp.readline()
+                with open(os.path.join(os.path.dirname(__file__), '..', 'templates', arg + '.csv')) as fp:
+                    reader = csv.reader(fp, delimiter=',')
+                    for row in reader:
+                        courses.append(row[0].strip())
                     database.admindb.add_course(courses, ctx.guild.id)
+                    current_category = ""
+                    category_courses = []
+                with open(os.path.join(os.path.dirname(__file__), '..', 'templates', arg + '.csv')) as fp:
+                    reader = csv.reader(fp, delimiter=',')
+                    current_category = ""
+                    category_courses = []
+                    for row in reader:
+                        category = str(row[1])
+                        if category != current_category and current_category != "":
+                            database.admindb.course_category(
+                                current_category, category_courses, ctx.guild.id)
+                            category_courses = []
+                        current_category = category
+                        category_courses.append(row[0].upper().strip())
+                    database.admindb.course_category(
+                        current_category, category_courses, ctx.guild.id)
             except BaseException as e:
                 print(e)
             response = response + "✅ Added template " + arg
@@ -74,16 +90,15 @@ class Admin(commands.Cog):
         await ctx.message.channel.send(response)
 
     @commands.command(brief="Remove all courses associated with a template")
-    async def removetemplate(self, ctx: commands.Context, arg):
+    async def deactivatetemplate(self, ctx: commands.Context, arg):
         response: str = ""
         if arg in self.get_templates():
             courses: typing.List[str] = []
             try:
-                with open(os.path.join(os.path.dirname(__file__), '..', 'templates', arg + '.txt')) as fp:
-                    line = fp.readline()
-                    while line:
-                        courses.append(line.strip())
-                        line = fp.readline()
+                with open(os.path.join(os.path.dirname(__file__), '..', 'templates', arg + '.csv')) as fp:
+                    reader = csv.reader(fp, delimiter=',')
+                    for row in reader:
+                        courses.append(row[0].upper().strip())
                     database.admindb.remove_course(courses, ctx.guild.id)
             except BaseException as e:
                 print(e)
