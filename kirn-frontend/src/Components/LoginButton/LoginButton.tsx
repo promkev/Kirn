@@ -43,7 +43,7 @@ export default function LoginButton(props: ButtonProps) {
             } else {
                 try {
                     appwrite.account.deleteSession('current')
-                    window.location.reload(true)
+                    window.location.reload()
                     setLoggedIn(false)
                 } catch (error) {
                     console.log(error)

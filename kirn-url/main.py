@@ -9,7 +9,7 @@ client = Client()
 
 (client
  # Your API Endpoint
- .set_endpoint('https://appwrite.grypr.cf/v1')
+ .set_endpoint(os.environ.get('API_ENDPOINT'))
  .set_project(os.environ.get('PROJECT_ID'))  # Your project ID
  .set_key(os.environ.get('API_KEY'))  # Your secret API key
  )
