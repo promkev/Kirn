@@ -8,3 +8,5 @@ Kirn is a course channel management bot for Discord servers. It allows servers t
 - kirn-discordid: Appwrite cloud function (Python) that retrieves the user ID of users logging through the webapp and stores it in the Appwrite database.
 - kirn-url: Appwrite cloud function (Python) that sends information to kirn-bot that a user is requesting to join through an URL
 - kirn-frontend: React (Typescript) frontend that integrates with Appwrite for Discord OAuth2, and interacts with the cloud functions to provide the course channel URL functionality.
+
+![Ph3rpcdYfm2](https://user-images.githubusercontent.com/51273366/135680551-ed9269bf-0d73-4159-ae0f-a632cd1b4d17.gif)
